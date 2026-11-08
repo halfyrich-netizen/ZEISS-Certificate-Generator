@@ -1,0 +1,136 @@
+@import "tailwindcss";
+
+/* -------------------------------------------------------------
+   ZEISS Frutiger Next W1G Font Declarations with local() matching
+   ------------------------------------------------------------- */
+@font-face {
+  font-family: 'ZEISS Frutiger Next W1G Light Condensed';
+  src: url('/fonts/ZEISSFrutigerNextW1G-LtCn.woff2') format('woff2'),
+       local('ZEISS Frutiger Next W1G Light Condensed'),
+       local('ZEISSFrutigerNextW1G-LtCn'),
+       local('ZEISS Frutiger Next W1G LtCn'),
+       local('ZEISS Frutiger Next Light Condensed'),
+       local('Frutiger Next Light Condensed');
+  font-weight: 300;
+  font-style: normal;
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'ZEISS Frutiger Next W1G Medium Condensed';
+  src: url('/fonts/ZEISSFrutigerNextW1G-MdCn.woff2') format('woff2'),
+       local('ZEISS Frutiger Next W1G Medium Condensed'),
+       local('ZEISSFrutigerNextW1G-MdCn'),
+       local('ZEISS Frutiger Next W1G MdCn'),
+       local('ZEISS Frutiger Next Medium Condensed'),
+       local('Frutiger Next Medium Condensed');
+  font-weight: 500;
+  font-style: normal;
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'ZEISS Frutiger Next W1G Bold Condensed';
+  src: url('/fonts/ZEISSFrutigerNextW1G-BoldCn.woff2') format('woff2'),
+       local('ZEISS Frutiger Next W1G Bold Condensed'),
+       local('ZEISSFrutigerNextW1G-BoldCn'),
+       local('ZEISS Frutiger Next W1G BoldCn'),
+       local('ZEISS Frutiger Next Bold Condensed'),
+       local('Frutiger Next Bold Condensed');
+  font-weight: 700;
+  font-style: normal;
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'ZEISS Frutiger Next W1G Regular';
+  src: url('/fonts/ZEISSFrutigerNextW1G-Reg.woff2') format('woff2'),
+       local('ZEISS Frutiger Next W1G Regular'),
+       local('ZEISSFrutigerNextW1G-Reg'),
+       local('ZEISS Frutiger Next W1G Reg'),
+       local('ZEISS Frutiger Next W1G'),
+       local('ZEISS Frutiger Next'),
+       local('Frutiger Next Regular');
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+
+@layer base {
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+}
+
+/* -------------------------------------------------------------
+   Authoritative Baseline Rules for Title and Logo
+   ------------------------------------------------------------- */
+.vertical-title {
+  position: absolute !important;
+  left: 11.5mm !important;
+  top: 278.5mm !important; /* Bottom aligned flush with ZEISS logo bottom (259.5mm + 19mm) */
+
+  transform: rotate(-90deg) !important;
+  transform-origin: 0 0 !important; /* Numeric 0 0 avoids html2canvas parser falling back to 50% 50% */
+
+  font-family: "ZEISS Frutiger Next W1G Light Condensed",
+               "Arial Narrow",
+               sans-serif !important;
+
+  font-size: 72pt !important; /* Visual width ~22mm after rotation, matching reference */
+  font-weight: 300 !important;
+  line-height: 1 !important;
+  letter-spacing: 38pt !important; /* Generous spacing producing 261mm vertical span, clearing top by 17.5mm */
+
+  color: #929395 !important;
+  white-space: nowrap !important;
+  width: max-content !important;
+  max-width: none !important;
+
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.zeiss-logo {
+  position: absolute !important;
+  left: 105mm !important; /* Shifted slightly to the left from 112.2mm to match reference balance */
+  top: 259.5mm !important;
+
+  width: 19mm !important;
+  height: 19mm !important;
+
+  min-width: 19mm !important;
+  min-height: 19mm !important;
+  max-width: none !important;
+  max-height: none !important;
+
+  object-fit: contain !important;
+  object-position: center !important;
+
+  margin: 0 !important;
+  padding: 0 !important;
+  transform: none !important;
+}
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 0;
+  }
+  html,
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 210mm !important;
+    height: 297mm !important;
+    background: #ffffff !important;
+    print-color-adjust: exact !important;
+    -webkit-print-color-adjust: exact !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+}

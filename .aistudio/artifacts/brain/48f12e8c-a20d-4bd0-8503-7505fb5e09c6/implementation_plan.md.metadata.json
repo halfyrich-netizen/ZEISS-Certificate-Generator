@@ -1,0 +1,6 @@
+{
+  "summary":  "Detailed implementation plan for the Carl Zeiss Training Certificate Generator with multi-recipient batch processing, signature upload and digital drawing, live pixel-perfect preview matching the provided Carl Zeiss template, and export options for both combined multi-page PDF and ZIP archives.",
+  "updatedAt":  "2026-11-08T12:19:47.926109804Z",
+  "requestFeedback":  true,
+  "userFacing":  true
+}

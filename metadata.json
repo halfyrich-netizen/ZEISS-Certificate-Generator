@@ -1,0 +1,6 @@
+{
+  "name": "ZEISS Medical Training Certificate Generator",
+  "description": "Professional certificate generator with multi-recipient batch processing, signature authentication, and pixel-perfect PDF export matching Carl Zeiss standards.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
