@@ -63,6 +63,43 @@
 }
 
 /* -------------------------------------------------------------
+   Hide scrollbars globally for a seamless native app experience
+   while preserving smooth touch and trackpad scrolling
+   ------------------------------------------------------------- */
+* {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+::-webkit-scrollbar,
+*::-webkit-scrollbar,
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
+}
+
+::-webkit-scrollbar-thumb,
+*::-webkit-scrollbar-thumb {
+  display: none !important;
+  background: transparent !important;
+}
+
+::-webkit-scrollbar-track,
+*::-webkit-scrollbar-track {
+  display: none !important;
+  background: transparent !important;
+}
+
+html, body {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+  overflow-x: hidden;
+}
+
+/* -------------------------------------------------------------
    Authoritative Baseline Rules for Title and Logo
    ------------------------------------------------------------- */
 .vertical-title {
