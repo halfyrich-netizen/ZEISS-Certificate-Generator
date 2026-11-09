@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { CertificateData } from '../types';
 import { CertificateView } from './CertificateView';
-import { runLiveDiagnostics } from './DiagnosticModal';
 import {
   ZoomIn,
   ZoomOut,
@@ -11,18 +10,12 @@ import {
   FileArchive,
   FileText,
   Printer,
-  Type,
-  CheckCircle2,
-  AlertCircle,
-  Terminal,
+  ShieldCheck,
 } from 'lucide-react';
 
 interface PreviewDeckProps {
   data: CertificateData;
   activeRecipientIndex: number;
-  isZeissFontActive: boolean;
-  onOpenFontModal: () => void;
-  onOpenDiagnosticModal: () => void;
   onSelectRecipient: (index: number) => void;
   onExportCurrent: () => void;
   onExportBatchZip: () => void;
@@ -33,9 +26,6 @@ interface PreviewDeckProps {
 export const PreviewDeck: React.FC<PreviewDeckProps> = ({
   data,
   activeRecipientIndex,
-  isZeissFontActive,
-  onOpenFontModal,
-  onOpenDiagnosticModal,
   onSelectRecipient,
   onExportCurrent,
   onExportBatchZip,
@@ -65,14 +55,6 @@ export const PreviewDeck: React.FC<PreviewDeckProps> = ({
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Run diagnostics on mount / scale change
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      runLiveDiagnostics();
-    }, 400);
-    return () => clearTimeout(timer);
-  }, [scale, currentRecipient]);
-
   const handlePrev = () => {
     if (activeRecipientIndex > 0) {
       onSelectRecipient(activeRecipientIndex - 1);
@@ -87,38 +69,6 @@ export const PreviewDeck: React.FC<PreviewDeckProps> = ({
 
   return (
     <div className="flex flex-col h-full">
-      {/* Font & Compliance Ribbon */}
-      <div className="no-print mb-3 flex items-center justify-between text-xs px-3 py-2 bg-white rounded-lg border border-slate-200 shadow-2xs">
-        <div className="flex items-center gap-2">
-          {isZeissFontActive ? (
-            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-          ) : (
-            <AlertCircle className="w-4 h-4 text-amber-500" />
-          )}
-          <span className="font-medium text-slate-700">
-            {isZeissFontActive
-              ? 'Typography: ZEISS Frutiger Next W1G Loaded (Exact Layout)'
-              : 'Typography: Arial Narrow / Roboto Condensed (Approximate Fallback)'}
-          </span>
-        </div>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={onOpenDiagnosticModal}
-            className="flex items-center gap-1 font-mono text-[11px] text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 px-2 py-0.5 rounded transition-colors"
-            title="Inspect computed styles (fontSize, letterSpacing, rendered dimensions)"
-          >
-            <Terminal className="w-3 h-3 text-emerald-600" />
-            Diagnostics
-          </button>
-          <button
-            onClick={onOpenFontModal}
-            className="flex items-center gap-1 font-semibold text-blue-700 hover:text-blue-900 underline"
-          >
-            <Type className="w-3.5 h-3.5" />
-            {isZeissFontActive ? 'Manage Font Files' : 'Load Local ZEISS Font'}
-          </button>
-        </div>
-      </div>
 
       {/* Top Controls Toolbar */}
       <div className="no-print bg-white rounded-xl border border-slate-200 p-3 mb-4 shadow-xs flex flex-wrap items-center justify-between gap-3">
@@ -218,6 +168,15 @@ export const PreviewDeck: React.FC<PreviewDeckProps> = ({
           <span className="text-xs text-slate-400">
             (300 DPI A4 Master)
           </span>
+          {data.pdfSecurity?.isProtected && (
+            <span
+              className="flex items-center gap-1 text-[11px] font-medium bg-emerald-950/80 text-emerald-300 border border-emerald-700/60 px-2 py-0.5 rounded-md"
+              title="PDF is protected: Recipients can view and print freely without password, but editing and text extraction are locked."
+            >
+              <ShieldCheck className="w-3 h-3 text-emerald-400" />
+              Protected: View & Print Only
+            </span>
+          )}
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">

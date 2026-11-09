@@ -39,6 +39,21 @@ export async function validateCertificateDom(
     });
   }
 
+  const vTitleEl = rootElement.querySelector('.vertical-title') as HTMLImageElement | null;
+  if (!vTitleEl) {
+    errors.push({
+      element: 'vertical-title',
+      type: 'missing_content',
+      message: 'Vertical CERTIFICATE title element is missing.',
+    });
+  } else if (vTitleEl.tagName === 'IMG' && (!vTitleEl.complete || vTitleEl.naturalWidth === 0)) {
+    errors.push({
+      element: 'vertical-title',
+      type: 'asset_missing',
+      message: 'Vertical CERTIFICATE title image failed to load.',
+    });
+  }
+
   const sigEl = rootElement.querySelector('.signature') as HTMLImageElement | null;
   if (!sigEl && data.signatureImage) {
     errors.push({
@@ -65,27 +80,27 @@ export async function validateCertificateDom(
     });
   }
 
-  if (data.statementLines.length < 3) {
+  if (data.statementLines.length === 0 || data.statementLines.every((l) => !l.trim())) {
     errors.push({
       element: 'certification-statement',
       type: 'missing_content',
-      message: `Certification statement requires exactly 3 lines (found ${data.statementLines.length}).`,
+      message: 'Certification statement lines cannot be empty.',
     });
   }
 
-  if (data.qualificationLines.length < 2) {
+  if (data.qualificationLines.length === 0 || data.qualificationLines.every((l) => !l.trim())) {
     errors.push({
       element: 'qualification',
       type: 'missing_content',
-      message: `Qualification requires at least 2 lines (found ${data.qualificationLines.length}).`,
+      message: 'Qualification procedure lines cannot be empty.',
     });
   }
 
-  if (data.disclaimerLines.length < 2) {
+  if (data.disclaimerLines.length === 0 || data.disclaimerLines.every((l) => !l.trim())) {
     errors.push({
       element: 'disclaimer',
       type: 'missing_content',
-      message: `Legal disclaimer requires exactly 2 lines (found ${data.disclaimerLines.length}).`,
+      message: 'Legal disclaimer lines cannot be empty.',
     });
   }
 

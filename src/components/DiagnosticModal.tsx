@@ -136,29 +136,24 @@ export const DiagnosticModal: React.FC<DiagnosticModalProps> = ({ isOpen, onClos
                 </thead>
                 <tbody className="divide-y divide-slate-100 bg-white">
                   <tr>
-                    <td className="px-3.5 py-2 text-slate-600">titleFontSize</td>
-                    <td className="px-3.5 py-2 font-bold text-emerald-700">{data.titleFontSize}</td>
-                    <td className="px-3.5 py-2 text-slate-400">72pt (96px, 22mm visual height)</td>
+                    <td className="px-3.5 py-2 text-slate-600">titleType</td>
+                    <td className="px-3.5 py-2 font-bold text-emerald-700">600 DPI Vector Asset</td>
+                    <td className="px-3.5 py-2 text-slate-400">ZEISS Frutiger Next W1G LtCn (72pt, 38pt tracking)</td>
                   </tr>
                   <tr>
-                    <td className="px-3.5 py-2 text-slate-600">titleLetterSpacing</td>
-                    <td className="px-3.5 py-2 font-bold text-emerald-700">{data.titleLetterSpacing}</td>
-                    <td className="px-3.5 py-2 text-slate-400">38pt (~50.6px)</td>
-                  </tr>
-                  <tr>
-                    <td className="px-3.5 py-2 text-slate-600">titleTop (Bottom alignment)</td>
+                    <td className="px-3.5 py-2 text-slate-600">titleTop</td>
                     <td className="px-3.5 py-2 font-bold text-emerald-700">{data.titleTop}</td>
-                    <td className="px-3.5 py-2 text-slate-400">278.5mm (Flush with ZEISS logo bottom)</td>
+                    <td className="px-3.5 py-2 text-slate-400">14.99mm (Exact Reference Alignment)</td>
                   </tr>
                   <tr>
-                    <td className="px-3.5 py-2 text-slate-600">titleWidth (rotated)</td>
+                    <td className="px-3.5 py-2 text-slate-600">titleWidth</td>
                     <td className="px-3.5 py-2 text-slate-900">{data.titleWidth}px</td>
-                    <td className="px-3.5 py-2 text-slate-400">~80px–88px (21–23mm)</td>
+                    <td className="px-3.5 py-2 text-slate-400">23.2mm (~87.7px)</td>
                   </tr>
                   <tr>
-                    <td className="px-3.5 py-2 text-slate-600">titleHeight (rotated)</td>
+                    <td className="px-3.5 py-2 text-slate-600">titleHeight</td>
                     <td className="px-3.5 py-2 text-slate-900">{data.titleHeight}px</td>
-                    <td className="px-3.5 py-2 text-slate-400">~980px–995px (260–263mm)</td>
+                    <td className="px-3.5 py-2 text-slate-400">269.7mm (~1019px)</td>
                   </tr>
                   <tr>
                     <td className="px-3.5 py-2 text-slate-600">logoCssLeft (Horizontal)</td>

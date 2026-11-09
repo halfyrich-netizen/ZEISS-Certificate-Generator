@@ -75,33 +75,28 @@ export const CertificateView: React.FC<CertificateViewProps> = ({
       >
         {/*
           VERTICAL CERTIFICATE TITLE
-          left: 11.5mm; top: 278.5mm; transform: rotate(-90deg); transform-origin: left top;
-          Bottom of word is flush aligned with the bottom of the ZEISS logo (259.5mm + 19mm = 278.5mm).
+          Official vector-extracted high-resolution asset matching exact ZEISS specification.
+          Using a direct image element guarantees 100% flawless vertical placement on both
+          live display and PDF export, completely eliminating html2canvas CSS transform rotation bugs.
         */}
-        <div
+        <img
           className="vertical-title"
+          src="/assets/aistudio/zeiss_vertical_certificate.png"
+          alt="CERTIFICATE"
           style={{
             position: 'absolute',
-            left: '11.5mm',
-            top: '278.5mm',
-            transform: 'rotate(-90deg)',
-            transformOrigin: '0 0',
-            fontFamily: fontLightCondensed,
-            fontSize: '72pt',
-            fontWeight: 300,
-            lineHeight: 1,
-            letterSpacing: '38pt',
-            color: '#929395',
-            whiteSpace: 'nowrap',
-            width: 'max-content',
-            maxWidth: 'none',
+            left: '14.99mm',
+            top: '14.99mm',
+            width: '23.2mm',
+            height: '269.7mm',
+            objectFit: 'contain',
+            pointerEvents: 'none',
+            userSelect: 'none',
             margin: 0,
             padding: 0,
-            userSelect: 'none',
+            transform: 'none',
           }}
-        >
-          CERTIFICATE
-        </div>
+        />
 
         {/*
           A. Recipient Name

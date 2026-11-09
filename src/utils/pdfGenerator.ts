@@ -19,6 +19,15 @@ export function downloadBlob(blob: Blob, filename: string) {
   URL.revokeObjectURL(url);
 }
 
+export function getEncryptionConfig(data: CertificateData) {
+  if (!data.pdfSecurity?.isProtected) return undefined;
+  return {
+    userPassword: '', // Empty: recipients open and view freely without password prompt
+    ownerPassword: data.pdfSecurity.ownerPassword || 'ZeissCert#2026',
+    userPermissions: ['print' as any], // Permits high-res printing; disables modifying/copying/tampering
+  };
+}
+
 /**
  * Capture an HTML element into a jsPDF A4 page
  */
@@ -39,6 +48,18 @@ export async function captureElementToPdf(
     throw new Error(`Certificate validation failed before PDF generation:\n• ${errorMsgs}`);
   }
 
+  // Ensure all images are fully loaded and decoded before rasterization
+  const imgElements = Array.from(element.querySelectorAll('img'));
+  await Promise.all(
+    imgElements.map((img) => {
+      if (img.complete && img.naturalWidth > 0) return Promise.resolve();
+      return new Promise<void>((resolve) => {
+        img.onload = () => resolve();
+        img.onerror = () => resolve();
+      });
+    })
+  );
+
   // Capture at 3x scale: 210mm x 297mm converts to 2382px x 3369px (true 300+ DPI print grade)
   const canvas = await html2canvas(element, {
     scale: 3.0,
@@ -46,20 +67,20 @@ export async function captureElementToPdf(
     logging: false,
     backgroundColor: '#ffffff',
     allowTaint: true,
-    imageTimeout: 5000,
+    imageTimeout: 8000,
     onclone: (_clonedDoc: Document, clonedEl: HTMLElement) => {
-      // Guarantee cloned node is stationed at 0,0 with 0 0 transform-origin for pristine rotation math
       clonedEl.style.left = '0px';
       clonedEl.style.top = '0px';
       const vTitle = clonedEl.querySelector('.vertical-title') as HTMLElement | null;
       if (vTitle) {
-        vTitle.style.transformOrigin = '0 0';
-        vTitle.style.transform = 'rotate(-90deg)';
+        vTitle.style.transform = 'none';
+        vTitle.style.transformOrigin = 'initial';
       }
     },
   });
 
   const imgData = canvas.toDataURL('image/jpeg', 0.98);
+  const encryption = getEncryptionConfig(data);
   const pdf =
     pdfInstance ||
     new jsPDF({
@@ -67,6 +88,7 @@ export async function captureElementToPdf(
       unit: 'mm',
       format: 'a4',
       compress: true,
+      encryption,
     });
 
   // Exactly fit A4 (210mm x 297mm) with 0 margin
@@ -147,6 +169,7 @@ export async function exportCombinedPdf(
         unit: 'mm',
         format: 'a4',
         compress: true,
+        encryption: getEncryptionConfig(data),
       });
       await captureElementToPdf(node, data, combinedPdf);
     } else if (combinedPdf) {

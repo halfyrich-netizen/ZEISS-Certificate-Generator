@@ -1,55 +1,44 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
-import { CertificateData } from './types';
+import { CertificateData, SavedSignatureProfile } from './types';
 import { INITIAL_CERTIFICATE_DATA } from './constants/defaults';
 import { Header } from './components/Header';
 import { RecipientManager } from './components/RecipientManager';
 import { CertificateEditor } from './components/CertificateEditor';
 import { PreviewDeck } from './components/PreviewDeck';
 import { SignaturePadModal } from './components/SignaturePadModal';
-import { FontManagerModal } from './components/FontManagerModal';
-import { DiagnosticModal } from './components/DiagnosticModal';
+import { SignatureProfileManagerModal } from './components/SignatureProfileManagerModal';
 import { ExportProgressModal } from './components/ExportProgressModal';
 import { CertificateView } from './components/CertificateView';
+import { MobilePreviewModal } from './components/MobilePreviewModal';
+import { MobileStepWizard } from './components/MobileStepWizard';
 import {
   exportCurrentCertificate,
   exportBatchAsZip,
   exportCombinedPdf,
 } from './utils/pdfGenerator';
-import {
-  loadCachedFonts,
-  checkZeissFontStatus,
-  getFontsFromDb,
-} from './utils/fontManager';
+import { loadCachedFonts } from './utils/fontManager';
 import { createRoot } from 'react-dom/client';
+import { flushSync } from 'react-dom';
 import { AlertCircle } from 'lucide-react';
+import { useCertificateStorage } from './hooks/useCertificateStorage';
+import { useSignatureProfiles } from './hooks/useSignatureProfiles';
+import { useProcedurePresets } from './hooks/useProcedurePresets';
 
 export default function App() {
-  const [data, setData] = useState<CertificateData>(INITIAL_CERTIFICATE_DATA);
+  const { data, setData, updateData, resetToDefaults, lastSaved } = useCertificateStorage();
+  const { profiles: signatureProfiles, saveProfile, deleteProfile } = useSignatureProfiles();
+  const { allPresets: procedurePresets, addCustomProcedure, deleteCustomProcedure } = useProcedurePresets();
+
   const [activeRecipientIndex, setActiveRecipientIndex] = useState<number>(0);
   const [isSignatureModalOpen, setIsSignatureModalOpen] = useState<boolean>(false);
-  const [isFontModalOpen, setIsFontModalOpen] = useState<boolean>(false);
-  const [isDiagnosticModalOpen, setIsDiagnosticModalOpen] = useState<boolean>(false);
-  const [isZeissFontActive, setIsZeissFontActive] = useState<boolean>(false);
-  const [loadedFontNames, setLoadedFontNames] = useState<string[]>([]);
+  const [isSignatureProfileModalOpen, setIsSignatureProfileModalOpen] = useState<boolean>(false);
+  const [isMobilePreviewOpen, setIsMobilePreviewOpen] = useState<boolean>(false);
   const [validationErrorModal, setValidationErrorModal] = useState<string | null>(null);
 
-  // Check and initialize local fonts
-  const refreshFontStatus = useCallback(async () => {
-    try {
-      const stored = await getFontsFromDb();
-      setLoadedFontNames(stored.map((s) => s.name));
-      const active = checkZeissFontStatus() || stored.length > 0;
-      setIsZeissFontActive(active);
-    } catch {
-      setIsZeissFontActive(false);
-    }
-  }, []);
-
+  // Auto-load cached fonts on launch
   useEffect(() => {
-    loadCachedFonts().then(() => {
-      refreshFontStatus();
-    });
-  }, [refreshFontStatus]);
+    loadCachedFonts().catch(() => {});
+  }, []);
 
   // Batch Export Progress state
   const [exportModalState, setExportModalState] = useState<{
@@ -117,13 +106,26 @@ export default function App() {
 
   // Reset to default specification example
   const handleResetToDefaults = () => {
-    setData(INITIAL_CERTIFICATE_DATA);
+    resetToDefaults();
     setActiveRecipientIndex(0);
   };
 
-  // Save new signature
+  // Save new signature stroke from quick modal
   const handleSaveSignature = (sigUrl: string) => {
     setData((prev) => ({ ...prev, signatureImage: sigUrl }));
+  };
+
+  // Apply saved signature profile to active certificate
+  const handleSelectSignatureProfile = (profile: SavedSignatureProfile) => {
+    setData((prev) => ({
+      ...prev,
+      selectedSignatureId: profile.id,
+      signatoryName: profile.signatoryName,
+      signatoryTitle: profile.signatoryTitle,
+      signatoryDepartment: profile.signatoryDepartment,
+      signatoryCompany: profile.signatoryCompany,
+      signatureImage: profile.signatureImage,
+    }));
   };
 
   /**
@@ -143,19 +145,21 @@ export default function App() {
       document.body.appendChild(wrapper);
 
       const root = createRoot(wrapper);
-      root.render(
-        <CertificateView
-          data={data}
-          recipientName={recipientName}
-          scale={1}
-        />
-      );
+      flushSync(() => {
+        root.render(
+          <CertificateView
+            data={data}
+            recipientName={recipientName}
+            scale={1}
+          />
+        );
+      });
 
       // Await fonts and DOM paint
       if (document.fonts) {
         await document.fonts.ready;
       }
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 120));
 
       const certNode = (wrapper.querySelector('.certificate-page') as HTMLElement) || wrapper;
       (wrapper as any).__reactRoot = root;
@@ -271,18 +275,33 @@ export default function App() {
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col text-slate-900">
       {/* Top Navigation */}
-      <Header
-        onExportCurrent={handleExportCurrent}
+      <Header />
+
+      {/* Mobile & iPad Step-by-Step Guided Creation Wizard */}
+      <MobileStepWizard
+        data={data}
+        onChange={handleDataChange}
+        recipients={data.recipients}
+        activeRecipientIndex={activeRecipientIndex}
+        onSelectRecipient={handleSelectRecipient}
+        onAddRecipient={handleAddRecipient}
+        onRemoveRecipient={handleRemoveRecipient}
+        onSetRecipients={handleSetRecipients}
+        procedurePresets={procedurePresets}
+        signatureProfiles={signatureProfiles}
+        onSelectSignatureProfile={handleSelectSignatureProfile}
         onOpenSignatureModal={() => setIsSignatureModalOpen(true)}
-        onOpenFontModal={() => setIsFontModalOpen(true)}
-        onOpenDiagnosticModal={() => setIsDiagnosticModalOpen(true)}
+        onOpenSignatureProfileManager={() => setIsSignatureProfileModalOpen(true)}
+        onOpenPreview={() => setIsMobilePreviewOpen(true)}
+        onExportCurrent={handleExportCurrent}
+        onExportBatchZip={handleExportBatchZip}
+        onExportCombinedPdf={handleExportCombinedPdf}
         onPrint={handlePrint}
-        recipientCount={data.recipients.length}
-        isZeissFontActive={isZeissFontActive}
+        onResetToDefaults={handleResetToDefaults}
       />
 
-      {/* Main Workspace split */}
-      <main className="flex-1 max-w-[1720px] w-full mx-auto p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      {/* Main Workspace split for Laptop / Desktop (Desktop view only) */}
+      <main className="hidden lg:grid flex-1 max-w-[1720px] w-full mx-auto p-4 sm:p-6 grid-cols-12 gap-6 items-start">
         {/* Left Column: Configuration Controls (5 cols on lg) */}
         <div className="no-print lg:col-span-5 xl:col-span-4 space-y-4">
           <RecipientManager
@@ -298,18 +317,22 @@ export default function App() {
             data={data}
             onChange={handleDataChange}
             onOpenSignatureModal={() => setIsSignatureModalOpen(true)}
+            onOpenSignatureProfileManager={() => setIsSignatureProfileModalOpen(true)}
+            signatureProfiles={signatureProfiles}
+            onSelectSignatureProfile={handleSelectSignatureProfile}
+            procedurePresets={procedurePresets}
+            onAddCustomProcedure={addCustomProcedure}
+            onDeleteCustomProcedure={deleteCustomProcedure}
             onResetToDefaults={handleResetToDefaults}
+            lastSaved={lastSaved}
           />
         </div>
 
-        {/* Right Column: Live A4 Preview Deck (7 cols on lg) */}
+        {/* Right Column: Live A4 Preview Deck (7 cols on lg, desktop only) */}
         <div className="lg:col-span-7 xl:col-span-8 sticky top-20">
           <PreviewDeck
             data={data}
             activeRecipientIndex={activeRecipientIndex}
-            isZeissFontActive={isZeissFontActive}
-            onOpenFontModal={() => setIsFontModalOpen(true)}
-            onOpenDiagnosticModal={() => setIsDiagnosticModalOpen(true)}
             onSelectRecipient={handleSelectRecipient}
             onExportCurrent={handleExportCurrent}
             onExportBatchZip={handleExportBatchZip}
@@ -319,7 +342,33 @@ export default function App() {
         </div>
       </main>
 
-      {/* Signature Authentication Modal */}
+      {/* Signature Profile Library CRUD Modal */}
+      <SignatureProfileManagerModal
+        isOpen={isSignatureProfileModalOpen}
+        onClose={() => setIsSignatureProfileModalOpen(false)}
+        profiles={signatureProfiles}
+        activeProfileId={data.selectedSignatureId}
+        onSelectProfile={(profile) => {
+          handleSelectSignatureProfile(profile);
+        }}
+        onSaveProfile={(profile) => {
+          saveProfile(profile);
+          if (data.selectedSignatureId === profile.id || signatureProfiles.length === 0) {
+            handleSelectSignatureProfile(profile);
+          }
+        }}
+        onDeleteProfile={(id) => {
+          deleteProfile(id);
+          if (data.selectedSignatureId === id) {
+            const remaining = signatureProfiles.filter((p) => p.id !== id);
+            if (remaining.length > 0) {
+              handleSelectSignatureProfile(remaining[0]);
+            }
+          }
+        }}
+      />
+
+      {/* Signature Quick Stroke Drawing/Upload Modal */}
       <SignaturePadModal
         isOpen={isSignatureModalOpen}
         onClose={() => setIsSignatureModalOpen(false)}
@@ -327,20 +376,6 @@ export default function App() {
         onSaveSignature={handleSaveSignature}
       />
 
-      {/* Font Manager Modal */}
-      <FontManagerModal
-        isOpen={isFontModalOpen}
-        onClose={() => setIsFontModalOpen(false)}
-        isZeissFontActive={isZeissFontActive}
-        loadedFontNames={loadedFontNames}
-        onFontsUpdated={refreshFontStatus}
-      />
-
-      {/* Diagnostic Console Modal */}
-      <DiagnosticModal
-        isOpen={isDiagnosticModalOpen}
-        onClose={() => setIsDiagnosticModalOpen(false)}
-      />
 
       {/* Batch Export Progress Modal */}
       <ExportProgressModal
@@ -379,6 +414,18 @@ export default function App() {
           </div>
         </div>
       )}
+
+      {/* Mobile Full-Screen Preview Sheet Modal (Phone & iPad) */}
+      <MobilePreviewModal
+        isOpen={isMobilePreviewOpen}
+        onClose={() => setIsMobilePreviewOpen(false)}
+        data={data}
+        activeRecipientIndex={activeRecipientIndex}
+        onSelectRecipient={handleSelectRecipient}
+        onExportCurrent={handleExportCurrent}
+        onExportCombinedPdf={handleExportCombinedPdf}
+        onPrint={handlePrint}
+      />
 
       {/* Off-screen capture staging area */}
       <div ref={offscreenContainerRef} className="no-print" />

@@ -67,28 +67,24 @@
    ------------------------------------------------------------- */
 .vertical-title {
   position: absolute !important;
-  left: 11.5mm !important;
-  top: 278.5mm !important; /* Bottom aligned flush with ZEISS logo bottom (259.5mm + 19mm) */
+  left: 14.99mm !important;
+  top: 14.99mm !important;
 
-  transform: rotate(-90deg) !important;
-  transform-origin: 0 0 !important; /* Numeric 0 0 avoids html2canvas parser falling back to 50% 50% */
+  width: 23.2mm !important;
+  height: 269.7mm !important;
 
-  font-family: "ZEISS Frutiger Next W1G Light Condensed",
-               "Arial Narrow",
-               sans-serif !important;
-
-  font-size: 72pt !important; /* Visual width ~22mm after rotation, matching reference */
-  font-weight: 300 !important;
-  line-height: 1 !important;
-  letter-spacing: 38pt !important; /* Generous spacing producing 261mm vertical span, clearing top by 17.5mm */
-
-  color: #929395 !important;
-  white-space: nowrap !important;
-  width: max-content !important;
+  min-width: 23.2mm !important;
+  min-height: 269.7mm !important;
   max-width: none !important;
+  max-height: none !important;
+
+  object-fit: contain !important;
+  object-position: center !important;
 
   margin: 0 !important;
   padding: 0 !important;
+  transform: none !important;
+  pointer-events: none !important;
 }
 
 .zeiss-logo {

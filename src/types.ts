@@ -1,3 +1,26 @@
+export interface ProcedurePreset {
+  id: string;
+  name: string;
+  lines: string[];
+  isCustom?: boolean;
+}
+
+export interface SavedSignatureProfile {
+  id: string;
+  label: string;
+  signatoryName: string;
+  signatoryTitle: string;
+  signatoryDepartment: string;
+  signatoryCompany: string;
+  signatureImage: string | null;
+  isDefault?: boolean;
+}
+
+export interface PdfSecurityConfig {
+  isProtected: boolean;
+  ownerPassword?: string;
+}
+
 export interface CertificateData {
   recipientName: string;
   recipients: string[];
@@ -11,6 +34,9 @@ export interface CertificateData {
   signatoryDepartment: string;
   signatoryCompany: string;
   signatureImage: string | null;
+  selectedProcedureId?: string;
+  selectedSignatureId?: string;
+  pdfSecurity?: PdfSecurityConfig;
 }
 
 export interface OverflowValidationError {

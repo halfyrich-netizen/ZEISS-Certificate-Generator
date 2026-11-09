@@ -51,37 +51,11 @@ export const RecipientManager: React.FC<RecipientManagerProps> = ({
   return (
     <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs">
       {/* Header */}
-      <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
-        <div className="flex items-center gap-2">
-          <Users className="w-4 h-4 text-blue-700" />
-          <h2 className="text-sm font-semibold text-slate-900">
-            1. Recipients
-          </h2>
-          <span className="text-xs font-semibold text-slate-600 bg-slate-100 px-2 py-0.5 rounded tabular-nums">
-            {recipients.length} {recipients.length === 1 ? 'Person' : 'People'}
-          </span>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setIsBulkModalOpen(true)}
-            className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 font-medium transition-colors"
-          >
-            <ClipboardList className="w-3.5 h-3.5" />
-            Bulk Paste
-          </button>
-          <span className="text-slate-300">·</span>
-          <button
-            type="button"
-            onClick={handleLoadSamples}
-            className="flex items-center gap-1 text-xs text-slate-500 hover:text-slate-800 transition-colors"
-            title="Load sample doctors list"
-          >
-            <Sparkles className="w-3.5 h-3.5" />
-            Load Samples
-          </button>
-        </div>
+      <div className="flex items-center gap-2 pb-3 border-b border-slate-100 mb-4">
+        <Users className="w-4 h-4 text-blue-700" />
+        <h2 className="text-sm font-semibold text-slate-900">
+          1. Recipients
+        </h2>
       </div>
 
       {/* Single Add Input */}
@@ -140,7 +114,7 @@ export const RecipientManager: React.FC<RecipientManagerProps> = ({
 
       {recipients.length > 1 && (
         <p className="mt-2 text-[11px] text-slate-400">
-          Click any recipient name above to preview their individual certificate on the right.
+          Click any recipient name above to select and preview their individual certificate.
         </p>
       )}
 
